@@ -21,6 +21,6 @@ func NewApplication() (*Application , error){
 	return app, nil
 }
 
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func(a *Application) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "I am alive!")
 }

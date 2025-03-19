@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mahadi-nsu/femProject/internal/app"
+	"github.com/mahadi-nsu/femProject/internal/routes"
 )
 
 func main() {
@@ -20,10 +21,13 @@ func main() {
 	}
     
 	app.Logger.Printf("We are running out app at port %d\n", port)
-	http.HandleFunc("/health", HealthCheck) 
+	
+	r := routes.SetupRoutes(app)
+
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
+		Handler: r,
 		IdleTimeout: time.Minute,
 		ReadTimeout: 10 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -35,6 +39,3 @@ func main() {
 	}
 }
 
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "I am alive!")
-}

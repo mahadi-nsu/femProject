@@ -19,17 +19,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-    
+
+	// close the database connection at the end
+	defer app.DB.Close()
+
 	app.Logger.Printf("We are running out app at port %d\n", port)
-	
+
 	r := routes.SetupRoutes(app)
 
-
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: r,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 10 * time.Second,
+		Addr:         fmt.Sprintf(":%d", port),
+		Handler:      r,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
@@ -38,4 +40,3 @@ func main() {
 		app.Logger.Fatal(err)
 	}
 }
-

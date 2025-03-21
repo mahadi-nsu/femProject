@@ -5,10 +5,11 @@ import (
 	"github.com/mahadi-nsu/femProject/internal/app"
 )
 
-func SetupRoutes(app *app.Application) *chi.Mux{
+func SetupRoutes(app *app.Application) *chi.Mux {
 	r := chi.NewRouter()
 	r.Get("/health", app.HealthCheck)
+	r.Get("/workouts/{id}", app.WorkoutHandler.HandleWorkoutById)
+	r.Post("/workouts", app.WorkoutHandler.HandleCreateWorkout)
 	return r
-	
-}
 
+}

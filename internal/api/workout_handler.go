@@ -3,38 +3,22 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/mahadi-nsu/femProject/internal/store"
+	"github.com/mahadi-nsu/femProject/internal/utils"
 )
 
 type WorkoutHandler struct {
 	workoutStore store.WorkoutStore
+	logger       *log.Logger
 }
 
 func NewWorkoutHandler(workoutStore store.WorkoutStore) *WorkoutHandler {
 	return &WorkoutHandler{
 		workoutStore: workoutStore,
 	}
-}
-
-func (wh *WorkoutHandler) HandleWorkoutById(w http.ResponseWriter, r *http.Request) {
-	// Handle workout by id
-	paramsWorkoutId := chi.URLParam(r, "id")
-	if paramsWorkoutId == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	workoutID, err := strconv.ParseInt(paramsWorkoutId, 10, 64)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	fmt.Fprint(w, "Workout ID: ", workoutID)
 }
 
 func (wh *WorkoutHandler) HandleCreateWorkout(w http.ResponseWriter, r *http.Request) {
@@ -56,4 +40,23 @@ func (wh *WorkoutHandler) HandleCreateWorkout(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(createdWorkout)
 
+}
+
+func (wh *WorkoutHandler) HandleGetWorkoutById(w http.ResponseWriter, r *http.Request) {
+	workoutID, err := utils.ReadIDParam(r)
+
+	if err != nil {
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "invalid workout id"})
+		return
+	}
+
+	workout, err := wh.workoutStore.GetWorkoutById(workoutID)
+
+	if err != nil {
+		wh.logger.Printf("ERROR: getWorkoutByID: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "internal server error"})
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"workout": workout})
 }
